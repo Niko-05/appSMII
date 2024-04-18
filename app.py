@@ -2,6 +2,8 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
+numCirculos = 0
+
 
 def detectar_circulos(imagen):
 
@@ -11,6 +13,8 @@ def detectar_circulos(imagen):
     rect_height = 400
     rect_x = int((widthScreen / 2) - (rect_width / 2)) 
     rect_y = 100
+
+    centro = int(rect_x + (rect_width / 2.0))
 
     # Dibujar el rectángulo en la imagen
     cv2.rectangle(imagen, (rect_x, rect_y), (rect_x + rect_width, rect_y + rect_height), (255, 0, 255), 3)
@@ -25,9 +29,9 @@ def detectar_circulos(imagen):
     blurred = cv2.GaussianBlur(gray, (9, 9), 2)
 
     param1 = 100
-    param2 = 12
+    param2 = 14
     minRadius = 1
-    maxRadius = 12
+    maxRadius = 10
 
 
     circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1, gray.shape[0] / 16, param1=param1, param2=param2, minRadius=minRadius, maxRadius=maxRadius)
@@ -37,9 +41,16 @@ def detectar_circulos(imagen):
 
         circles = np.round(circles[0, :]).astype("int")
 
+        circles_filtrados = []
+
         for (cx, cy, cr) in circles:
 
-            #Dibuja el círculo alrededor del agujero de la flauta (ajusta las coordenadas al marco original)
+           if cx <= centro + 15 and cx >= centro - 15 and cy > rect_y and cy < rect_y + rect_height:
+                circles_filtrados.append((cx, cy, cr))
+
+        #'''for (cx, cy, cr) in circles_filtrados:
+            #cv2.circle(imagen, (cx, cy), cr, (0, 255, 0), 2)
+        for(cx, cy, cr) in circles:
             cv2.circle(imagen, (rect_x + cx, rect_y + cy), cr, (0, 255, 0), 2)
 
     return imagen
