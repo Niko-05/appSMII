@@ -28,8 +28,8 @@ def detectar_circulos(imagen):
     # Aplica un desenfoque gaussiano para reducir el ruido
     blurred = cv2.GaussianBlur(gray, (9, 9), 2)
 
-    param1 = 100
-    param2 = 14
+    param1 = 200
+    param2 = 10
     minRadius = 1
     maxRadius = 10
 
@@ -41,15 +41,6 @@ def detectar_circulos(imagen):
 
         circles = np.round(circles[0, :]).astype("int")
 
-        circles_filtrados = []
-
-        for (cx, cy, cr) in circles:
-
-           if cx <= centro + 15 and cx >= centro - 15 and cy > rect_y and cy < rect_y + rect_height:
-                circles_filtrados.append((cx, cy, cr))
-
-        #'''for (cx, cy, cr) in circles_filtrados:
-            #cv2.circle(imagen, (cx, cy), cr, (0, 255, 0), 2)
         for(cx, cy, cr) in circles:
             cv2.circle(imagen, (rect_x + cx, rect_y + cy), cr, (0, 255, 0), 2)
 
@@ -72,13 +63,12 @@ def main():
 
         if not ret:
             break
-    
+            
         frame = cv2.resize(frame, (width, height))
 
-        frame_deteccion_manos = frame
-        frame_deteccion_circulos = frame
+        detectar_circulos(frame)
 
-        frame_rgb = cv2.cvtColor(frame_deteccion_manos, cv2.COLOR_BGR2RGB)
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         results = manos.process(frame_rgb)
 
@@ -95,13 +85,9 @@ def main():
 
                         if idx == 8 or idx == 12 or idx == 16 or idx == 20 :  # Índice, corazón, anular, meñique
 
-                            cv2.circle(frame_deteccion_manos, (x, y), 5, (255, 0, 0), -1)
+                            cv2.circle(frame, (x, y), 5, (255, 0, 0), -1)
         
-        frame_con_circulos = detectar_circulos(frame_deteccion_circulos)
-
-        frame_combinado = cv2.addWeighted(frame_deteccion_manos, 0.5, frame_con_circulos, 0.5, 0)
-
-        cv2.imshow('MediaFlute', frame_combinado)
+        cv2.imshow('MediaFlute', frame)
 
         if cv2.waitKey(10) & 0xFF == ord('q'):
 
