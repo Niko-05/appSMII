@@ -3,23 +3,20 @@ import mediapipe as mp
 import numpy as np
 
 
-def distancia_puntos(p1, p2):
-    return np.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+ref = False
+circlesBuenos = []
 
-def agrupar_puntos(puntos, radio):
-    grupos = []
-    puntos_no_asignados = puntos
+def tapados(x, y, circles, margen):
+    tapados = set()  # Conjunto para almacenar los círculos tapados por los landmarks
+    xNorm = x - 270
+    for circle in circles:
+        # Comprobar si el landmark está dentro del círculo (con un margen)
+        if (xNorm >= circle[0] - margen and xNorm <= circle[0] + circle[2] + margen and
+            y >= circle[1] - margen and y <= circle[1] + circle[2] + margen):
 
-    while puntos_no_asignados:
-        punto_actual = puntos_no_asignados.pop()
-        vecinos = [punto_actual]
-        for punto in puntos_no_asignados.copy():
-            if distancia_puntos(punto, punto_actual) <= radio:
-                vecinos.append(punto)
-                puntos_no_asignados.remove(punto)
-        grupos.append(vecinos)
-
-    return grupos
+            tapados.add(circle)  # Agregar el círculo tapado al conjunto
+            print("Landmark tapando círculo:", circle)
+    return tapados
 
 def detectar_circulos(imagen):
 
@@ -28,7 +25,10 @@ def detectar_circulos(imagen):
     rect_height = 400
     rect_x = int((widthScreen / 2) - (rect_width / 2)) 
     rect_y = 100
-    centro = int(rect_x + (rect_width / 2.0))
+    center = int(rect_width / 2)
+
+    global ref
+    global circlesBuenos
 
 
     # Dibujar el rectángulo en la imagen
@@ -45,8 +45,10 @@ def detectar_circulos(imagen):
 
     # Aplica un desenfoque gaussiano para reducir el ruido
     blurred = cv2.GaussianBlur(gray, (9, 9), 2)
-    param1 = 100
-    param2 = 14
+
+
+    param1 = 90
+    param2 = 13
     minRadius = 1
     maxRadius = 10
     circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1, gray.shape[0] / 16, param1=param1, param2=param2, minRadius=minRadius, maxRadius=maxRadius)
@@ -55,13 +57,16 @@ def detectar_circulos(imagen):
     # Si se detectan círculos, dibújalos
     if circles is not None:
         circles = np.round(circles[0, :]).astype("int")
-        circles_filtrados = []
+        circles_filtrados = set()
         for (cx, cy, cr) in circles:
-           if cx <= centro + 15 and cx >= centro - 15 and cy > rect_y and cy < rect_y + rect_height:
-                circles_filtrados.append((cx, cy, cr))
-                
-        for(cx, cy, cr) in circles:
-            cv2.circle(imagen, (rect_x + cx, rect_y + cy), cr, (0, 255, 0), 2)
+            if cx <= center + 25 and cx >= center - 25:
+                circles_filtrados.add((cx, cy, cr))
+                cv2.circle(imagen, (rect_x + cx, rect_y + cy), cr, (0, 255, 0), 2)
+                if len(circles_filtrados) == 7 and ref == False:
+                    circlesBuenos = sorted(list(circles_filtrados), key=lambda x: x[1])
+                    ref = True
+                    print(circlesBuenos)
+            
     return imagen
 
 
@@ -70,10 +75,20 @@ def main():
     mp_manos = mp.solutions.hands
     manos = mp_manos.Hands()
 
+    global ref
+
     cap = cv2.VideoCapture(0)
 
     width = 640  
     height = 480  
+
+    param1_inicial, param2_inicial = 90, 13
+
+    # Crear una ventana de OpenCV con sliders
+    '''cv2.namedWindow('MediaFlute')
+    cv2.createTrackbar('Param1', 'MediaFlute', param1_inicial, 500, actualizar_parametros)
+    cv2.createTrackbar('Param2', 'MediaFlute', param2_inicial, 50, actualizar_parametros)'''
+
 
     while cap.isOpened():
 
@@ -86,6 +101,9 @@ def main():
 
         frame_deteccion_manos = frame
         frame_deteccion_circulos = frame
+
+        '''param1 = cv2.getTrackbarPos('Param1', 'MediaFlute')
+        param2 = cv2.getTrackbarPos('Param2', 'MediaFlute')'''
 
         frame_con_circulos = detectar_circulos(frame_deteccion_circulos)
 
@@ -107,6 +125,7 @@ def main():
                         if idx == 8 or idx == 12 or idx == 16 or idx == 20 :  # Índice, corazón, anular, meñique
 
                             cv2.circle(frame_deteccion_manos, (x, y), 5, (255, 0, 0), -1)
+                            tapados(x, y, circlesBuenos, 8)
                         
                         
         
@@ -116,10 +135,13 @@ def main():
 
         cv2.imshow('MediaFlute', frame_combinado)
 
-        if cv2.waitKey(10) & 0xFF == ord('q'):
-
+        if cv2.waitKey(5) & 0xFF == ord('q'):
             break
-    
+        
+        if cv2.waitKey(5) & 0xFF == ord(' '):
+            print("Reset de referencias")
+            ref = False
+            
 
 
     cap.release()
