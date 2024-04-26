@@ -86,6 +86,7 @@ def detectar_circulos(imagen):
         history_length = 60
         if len(circle_positions_history) > history_length:
             circle_positions_history.pop(0)
+            
     # Combinar la imagen de la flauta con los círculos únicos detectados dentro del rectángulo
     resultado = cv2.bitwise_or(flute_only, output)
 
