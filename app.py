@@ -6,15 +6,33 @@ numCirculos = 0
 circle_positions = []
 circle_positions_history = []
 
-umbral_de_distancia = 45
+reference_circles = []
+
+umbral_de_distancia = 10
 
 
 def distancia_puntos(p1, p2):
     return np.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
+def agrupar_puntos(puntos, radio):
+    grupos = []
+    puntos_no_asignados = puntos
 
+    while puntos_no_asignados:
+        punto_actual = puntos_no_asignados.pop()
+        vecinos = [punto_actual]
+        for punto in puntos_no_asignados.copy():
+            if distancia_puntos(punto, punto_actual) <= radio:
+                vecinos.append(punto)
+                puntos_no_asignados.remove(punto)
+        grupos.append(vecinos)
+
+    return grupos
 
 def detectar_circulos(imagen):
+
+    global circle_positions_history
+
     heightScreen, widthScreen = imagen.shape[:2]
 
     rect_width = 100
@@ -31,8 +49,8 @@ def detectar_circulos(imagen):
     # Convertir la imagen de BGR a HSV
     hsv = cv2.cvtColor(imagen, cv2.COLOR_BGR2HSV)
 
-    flute_hue = 32  # Tonos amarillos y dorados
-    hue_tolerance = 18  # Permitir cierta variación en el tono
+    flute_hue = 30  # Tonos amarillos y dorados
+    hue_tolerance = 16  # Permitir cierta variación en el tono
     min_saturation = 50  # Saturación mínima
     max_saturation = 255  # Saturación máxima
     min_value = 50  # Valor mínimo (brillo)
@@ -54,10 +72,10 @@ def detectar_circulos(imagen):
     # Crear una lista para almacenar las posiciones de los círculos detectados dentro del rectángulo
     circle_positions = []
 
-    param1 = 150
-    param2 = 13
+    param1 = 50
+    param2 = 9
     minRadius = 1
-    maxRadius = 10
+    maxRadius = 14
 
     # Dibujar los círculos detectados en la imagen de salida
     circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT, 1, min(widthScreen, heightScreen) / 16, param1=param1, param2=param2, minRadius=minRadius, maxRadius=maxRadius)
@@ -68,25 +86,19 @@ def detectar_circulos(imagen):
         # Almacenar las posiciones de los círculos detectados dentro del rectángulo
         for (cx, cy, _) in circles:
             if x <= cx <= x + w and y <= cy <= y + h:  # Verificar si el círculo está dentro del rectángulo
-                circle_positions.append((cx, cy))
-                cv2.circle(output, (cx, cy), 5, (0, 255, 0), 2)  # Dibujar el círculo en la imagen de salida
+                if cx <= centro + 15 and cy >= centro - 15 and cy > rect_y and cy < rect_y + rect_height:
+                    circle_positions.append((cx, cy))
+                    cv2.circle(output, (cx, cy), 5, (0, 255, 0), 2)  # Dibujar el círculo en la imagen de salida
 
-        print("circle pos")
-        print(circle_positions)
-        print("-------------------")
-        print("circle history")
-        print(circle_positions_history)
-        print("-------------------")
-        
     
         # Mantén el historial de longitud history_length
-        
-        circle_positions_history.append(circle_positions)
+        if circle_positions:
+            circle_positions_history.append(circle_positions)
 
-        history_length = 60
+        history_length = 20
         if len(circle_positions_history) > history_length:
             circle_positions_history.pop(0)
-            
+
     # Combinar la imagen de la flauta con los círculos únicos detectados dentro del rectángulo
     resultado = cv2.bitwise_or(flute_only, output)
 
@@ -150,6 +162,12 @@ def main():
 
             break
     
+
+        if cv2.waitKey(1) & 0xFF == ord('r'):
+           puntos = agrupar_puntos(circle_positions_history, 10)
+           print(puntos)
+
+
     cap.release()
     cv2.destroyAllWindows()
 
