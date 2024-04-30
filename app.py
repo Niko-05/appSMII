@@ -2,13 +2,12 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import time
-import threading
 
 
 ref = False
 
-param1 = 100
-param2 = 11
+param1 = 90
+param2 = 13
 minRadius = 1
 maxRadius = 10
 
@@ -33,68 +32,102 @@ notas = {
 
 
 
-            
+def tapados(landmarks):
+    global flautaReferencia
+    tapados = set()
 
-'''def tocarNota():
-    global instanteFinal, instanteInicial, elapsedTime, notas 
+    margen = 15
+    for (cx, cy, cr) in flautaReferencia:
+        for (x, y) in landmarks:
+            if(cx - margen <= x <= cx + margen and cy - margen <= y <= cy + margen):
+                tapados.add((cx, cy, cr))
+
+    return tapados
+
+
+def circlesSinTapar(tapados):
+    global flautaReferencia
+    sinTapar = set()
+
+    sinTapar = set(flautaReferencia) - tapados
+    return sinTapar
+
+def tocarNota(tapados):
+    global instanteFinal, instanteInicial, elapsedTime, flautaReferencia, notas 
     if(ref):
+
         nota = -1
         instanteFinal = time.monotonic()
-        sinTapar = None
         elapsedTime = instanteFinal - instanteInicial
+
+        sinTapar = circlesSinTapar(tapados)
+
         if(elapsedTime >= 1):
-            if(len(circlesTapados) == len(circlesBuenos)):
+
+            if(len(flautaReferencia) == len(tapados)):
                 nota = notas["1"]
                 print("La nota tocada es: " + nota)
             
-            elif(len(circlesTapados) == 6):
-                if(3 in sinTapar):
+
+            elif(len(tapados) == 6 and tapados.issubset(flautaReferencia)):
+
+                if(set(flautaReferencia[3]) in sinTapar):
                     nota = notas["5"]
                     print("La nota tocada es: " + nota)
 
-                elif(0 in sinTapar):
+                elif(set(flautaReferencia[0]) in sinTapar):
                     nota = notas["2"]
                     print("La nota tocada es: " + nota)        
 
-            elif(len(circlesTapados) == 5 and [0, 1] in sinTapar):
+
+            elif(len(tapados) == 5 and tapados.issubset(flautaReferencia)):
+
                 nota = notas["3"]
                 print("La nota tocada es: " + nota) 
 
-            elif(len(circlesTapados) == 4):
-                if([0, 1, 4] in sinTapar):
+
+            elif(len(tapados) == 4 and tapados.issubset(flautaReferencia)):
+
+                if(set(flautaReferencia[0:1]) in sinTapar and  set(flautaReferencia[4]) in sinTapar):
                     nota = notas["7"]
                     print("La nota tocada es: " + nota)
-                elif([0, 1, 2] in sinTapar):
+
+
+                elif(set(flautaReferencia[0:2]) in sinTapar):
+
                     nota = notas["4"]
                     print("La nota tocada es: " + nota)
 
-            elif(len(circlesTapados) == 3 and [0, 1, 2, 3]):
+
+            elif(len(tapados) == 3 and tapados.issubset(flautaReferencia)):
+
                 nota = notas["6"]
                 print("La nota tocada es: " + nota)
 
-            elif(len(circlesTapados) == 2):
-                if([0, 1, 2, 3, 4] in sinTapar):
+
+            elif(len(tapados) == 2 and tapados.issubset(flautaReferencia)):
+
+                if(set(flautaReferencia[0:4]) in sinTapar):
                     nota = notas["8"]
                     print("La nota tocada es: " + nota)
 
-                elif([0, 1, 2, 3, 5] in sinTapar):
+                elif(set(flautaReferencia[0:2]) in sinTapar and set(flautaReferencia[3]) in sinTapar and set(flautaReferencia[5]) in sinTapar):
                     nota = notas["9"]
                     print("La nota tocada es: " + nota)
             
-            elif(len(circlesTapados) == 1):
-                if([0, 1, 2, 3, 4, 5] in sinTapar):
+
+            elif(len(tapados) == 1 and tapados.issubset(flautaReferencia)):
+
+                if(set(flautaReferencia[0:5]) in sinTapar):
                     nota = notas["10"]
                     print("La nota tocada es: " + nota)
 
-                elif([0, 1, 2, 3, 4, 6] in sinTapar):
+                elif(set(flautaReferencia[0:4]) in sinTapar and set(flautaReferencia[6]) in sinTapar):
                     nota = notas["11"]
                     print("La nota tocada es: " + nota)
-            
-            else:
-                print("Nota no detectada. Por favor pon tus manos correctamente")
 
             instanteInicial = time.monotonic()
-            '''
+
 
 
 
@@ -178,19 +211,28 @@ def main():
         if circles is not None:
             circle = np.round(circles[0, :]).astype("int")
             for (x, y, r) in circle:
-                if x <= center + 15 and x >= center - 15 and y > rect_y: #and y < rect_y + rect_height:
+                if x <= center + 15 and x >= center - 15 and y > rect_y - 30 and y < rect_y + 250:
                     circlesBuenos.append((x, y, r))
                     cv2.circle(frame, (rect_x + x, rect_y + y), r, (0, 255, 0), 2)
 
-        circlesBuenos.sort()
+        circlesBuenos.sort(key = lambda x: x[1], reverse = True)
+        #print(str(circlesBuenos))
 
-        if(numCirculos != len(circlesBuenos)):
+        if(len(circlesBuenos) == 7 and not ref):
+            print("Detectada nueva referencia")
+            ref = True
+            nuevaReferencia(circlesBuenos)
             instanteInicial = time.monotonic()
-            numCirculos = len(circlesBuenos)
+
+        '''if(numCirculos == len(circlesBuenos)):
+            nuevaReferencia(circlesBuenos)'''
+
 
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) #_deteccion_manos
 
         results = manos.process(frame_rgb)
+
+        landmarks = set()
 
         if results.multi_hand_landmarks:
 
@@ -203,11 +245,17 @@ def main():
                         x = int(landmark.x * frame.shape[1])
                         y = int(landmark.y * frame.shape[0])
 
-                        if idx == 8 or idx == 12 or idx == 16 or idx == 20 :  # Índice, corazón, anular, meñique
+                        if idx == 8 :#or idx == 12 or idx == 16 or idx == 20 :  # Índice, corazón, anular, meñique
 
-                            cv2.circle(frame, (x, y), 5, (255, 0, 0), -1)      
-                        
-        #tocarNota()
+                            cv2.circle(frame, (x, y), 5, (255, 0, 0), -1)
+                            '''print("----------------------")
+                            print(str((x - rect_x, 480 - y)))
+                            print("----------------------") '''     
+                            landmarks.add((x - rect_x, 480 - y))
+        
+        
+
+        tocarNota(tapados(landmarks))
         
         
 
@@ -216,9 +264,21 @@ def main():
         if cv2.waitKey(5) & 0xFF == ord('q'):
             break
         
+        if cv2.waitKey(5) & 0xFF == ord('r'):
+            print(str(flautaReferencia))
+            break
+
         if cv2.waitKey(5) & 0xFF == ord(' '):
-            print("Reset de referencias")
-            ref = False
+            print("Obteniendo nueva referencia")
+            if len(circlesBuenos) == 7:
+                nuevaReferencia(circlesBuenos)
+                instanteInicial = time.monotonic()
+                ref = True
+                print("Nueva referencia encontrada")
+
+            else:
+                print("No se corresponde con los agujeros de una flauta")
+            
             
 
 
