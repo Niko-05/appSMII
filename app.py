@@ -9,6 +9,12 @@ ref = False
 
 param1 = 100
 param2 = 11
+minRadius = 1
+maxRadius = 10
+
+instanteInicial = instanteFinal = elapsedTime = None
+
+flautaReferencia = []
 
 notas = {
     "1"  : "Do",
@@ -25,45 +31,18 @@ notas = {
 
 
 
-instanteInicial = instanteFinal = elapsedTime = None
 
-def compararListas(tuplaCircles, tuplaTapados):
-    posiciones_faltantes = []
-    for i, tupla in enumerate(tuplaCircles):
-        if tupla not in tuplaTapados:
-            posiciones_faltantes.append(i)
-    return posiciones_faltantes
 
-def tapados(x, y, circles, margen):
-    global circlesTapados  # Conjunto para almacenar los círculos tapados por los landmarks
-    xNorm = x - 270
-    for circle in circles:
-        # Comprobar si el landmark está dentro del círculo (con un margen)
-        if (xNorm >= circle[0] - margen and xNorm <= circle[0] + circle[2] + margen and
-            y >= circle[1] - margen and y <= circle[1] + circle[2] + margen):
-
-            circlesTapados.add(circle)  # Agregar el círculo tapado al conjunto
-            
             
 
-def tocarNota():
-    global circlesTapados, circlesBuenos, instanteFinal, instanteInicial, elapsedTime, notas 
+'''def tocarNota():
+    global instanteFinal, instanteInicial, elapsedTime, notas 
     if(ref):
         nota = -1
         instanteFinal = time.monotonic()
-        sinTapar = compararListas(circlesBuenos, circlesTapados)
+        sinTapar = None
         elapsedTime = instanteFinal - instanteInicial
         if(elapsedTime >= 1):
-            print(" ")
-            print("Circles tapados: " + str(circlesTapados))
-            print("--------------------------------------")
-            print("Circles buenos: " + str(circlesBuenos))
-            print(" ")
-            print("--------------------------------------")
-            print("Comparacion: " + str(sinTapar))
-            print(" ")
-            print("--------------------------------------")
-            print("--------------------------------------")
             if(len(circlesTapados) == len(circlesBuenos)):
                 nota = notas["1"]
                 print("La nota tocada es: " + nota)
@@ -115,59 +94,9 @@ def tocarNota():
                 print("Nota no detectada. Por favor pon tus manos correctamente")
 
             instanteInicial = time.monotonic()
-            circlesTapados = set()
-
-def detectar_circulos(imagen):
-
-    heightScreen, widthScreen = imagen.shape[:2]
-    rect_width = 100
-    rect_height = 400
-    rect_x = int((widthScreen / 2) - (rect_width / 2)) 
-    rect_y = 100
-    center = int(rect_width / 2)
-
-    global ref, circlesBuenos, instanteInicial 
+            '''
 
 
-    # Dibujar el rectángulo en la imagen
-    cv2.rectangle(imagen, (rect_x, rect_y), (rect_x + rect_width, rect_y + rect_height), (255, 0, 255), 3)
-
-
-    # Obtener la región de interés (ROI) dentro del rectángulo
-    roi = imagen[rect_y:rect_y+rect_height, rect_x:rect_x+rect_width]
-
-
-    # Convertir la ROI a escala de grises
-    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-
-
-    # Aplica un desenfoque gaussiano para reducir el ruido
-    blurred = cv2.GaussianBlur(gray, (9, 9), 2)
-
-
-    param1 = 90
-    param2 = 13
-    minRadius = 1
-    maxRadius = 10
-    circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1, gray.shape[0] / 16, param1=param1, param2=param2, minRadius=minRadius, maxRadius=maxRadius)
-
-
-    # Si se detectan círculos, dibújalos
-    if circles is not None:
-        circles = np.round(circles[0, :]).astype("int")
-        circles_filtrados = set()
-        for (cx, cy, cr) in circles:
-            if cx <= center + 10 and cx >= center - 10:
-                circles_filtrados.add((cx, cy, cr))
-                cv2.circle(imagen, (rect_x + cx, rect_y + cy), cr, (0, 255, 0), 2)
-                if len(circles_filtrados) == 7 and ref == False:
-                    circles 
-                    circlesBuenos = sorted(list(circles_filtrados), key=lambda x: x[1])
-                    ref = True
-                    print(circlesBuenos)
-                    instanteInicial = time.monotonic()
-            
-    return imagen
 
 
 def actualizar_valor1(valor):
@@ -178,13 +107,27 @@ def actualizar_valor2(valor):
     global param2
     param2 = valor
 
+def actualizar_valor3(valor):
+    global minRadius
+    minRadius = valor
+
+def actualizar_valor4(valor):
+    global maxRadius
+    maxRadius = valor
+
+def nuevaReferencia(flautaTiempoReal):
+    global flautaReferencia
+    flautaReferencia = flautaTiempoReal
+    
+    for c in flautaReferencia:
+        print(str(c))
 
 def main():
 
+    global ref, instanteInicial, param1, param2, minRadius, maxRadius
+
     mp_manos = mp.solutions.hands
     manos = mp_manos.Hands()
-
-    global ref, instanteInicial, circlesTapados, param1, param2
 
     cap = cv2.VideoCapture(0)
 
@@ -200,13 +143,14 @@ def main():
     center = int(rect_width / 2)
 
     
-    minRadius = 1
-    maxRadius = 10
+   
 
     # Crear una ventana de OpenCV con sliders
     cv2.namedWindow('Config')
     cv2.createTrackbar('Param1', 'Config', param1, 500, actualizar_valor1)
     cv2.createTrackbar('Param2', 'Config', param2, 50, actualizar_valor2)
+    cv2.createTrackbar('minRadius', 'Config', minRadius, 50, actualizar_valor3)
+    cv2.createTrackbar('maxRadius', 'Config', maxRadius, 50, actualizar_valor4)
 
     while cap.isOpened():
 
@@ -234,7 +178,7 @@ def main():
         if circles is not None:
             circle = np.round(circles[0, :]).astype("int")
             for (x, y, r) in circle:
-                if x <= center + 15 and x >= center - 15:# and y > rect_y and y < rect_y + rect_height:
+                if x <= center + 15 and x >= center - 15 and y > rect_y: #and y < rect_y + rect_height:
                     circlesBuenos.append((x, y, r))
                     cv2.circle(frame, (rect_x + x, rect_y + y), r, (0, 255, 0), 2)
 
@@ -243,12 +187,6 @@ def main():
         if(numCirculos != len(circlesBuenos)):
             instanteInicial = time.monotonic()
             numCirculos = len(circlesBuenos)
-
-
-        '''param1 = cv2.getTrackbarPos('Param1', 'MediaFlute')
-        param2 = cv2.getTrackbarPos('Param2', 'MediaFlute')'''
-
-        #frame_con_circulos = detectar_circulos(frame_deteccion_circulos)
 
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) #_deteccion_manos
 
@@ -272,9 +210,6 @@ def main():
         #tocarNota()
         
         
-        
-        #frame_combinado = cv2.addWeighted(frame_deteccion_manos, 0.5, frame_con_circulos, 0.5, 0)
-        #frame = cv2.resize(frame, (width, height))
 
         cv2.imshow("MediaFlute", frame)
 
