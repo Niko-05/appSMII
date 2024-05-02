@@ -5,9 +5,10 @@ import time
 
 
 ref = False
-showRectangulo = False
-showCirculos = False
-showLandmarks = False
+showRectangulo = True
+showCirculos = True
+showLandmarks = True
+opts = False
 
 
 param1 = 90
@@ -198,6 +199,7 @@ def tocarNota(tapados):
             else:
                 print("no nota")
             instanteInicial = time.monotonic()
+            return nota
 
 
 
@@ -226,9 +228,11 @@ def nuevaReferencia(flautaTiempoReal):
     for c in flautaReferencia:
         print(str(c))
 
+
+
 def main():
 
-    global ref, instanteInicial, param1, param2, minRadius, maxRadius, showRectangulo, showCirculos, showLandmarks
+    global ref, instanteInicial, param1, param2, minRadius, maxRadius, showRectangulo, showCirculos, showLandmarks, opts
 
     mp_manos = mp.solutions.hands
     manos = mp_manos.Hands()
@@ -247,14 +251,7 @@ def main():
     center = int(rect_width / 2)
 
     
-   
-
-    # Crear una ventana de OpenCV con sliders
-    cv2.namedWindow('Config')
-    cv2.createTrackbar('Param1', 'Config', param1, 500, actualizar_valor1)
-    cv2.createTrackbar('Param2', 'Config', param2, 50, actualizar_valor2)
-    cv2.createTrackbar('minRadius', 'Config', minRadius, 50, actualizar_valor3)
-    cv2.createTrackbar('maxRadius', 'Config', maxRadius, 50, actualizar_valor4)
+       
 
     while cap.isOpened():
 
@@ -301,7 +298,6 @@ def main():
                         cv2.circle(frame, (rect_x + x, rect_y + y), r, (0, 255, 0), 2)
 
         circlesBuenos.sort(key = lambda x: x[1])
-        #print(str(circlesBuenos))
 
         if(len(circlesBuenos) == 7 and not ref):
             print("Detectada nueva referencia")
@@ -372,7 +368,14 @@ def main():
             else:
                 showRectangulo = True           
 
-
+        if cv2.waitKey(1) & 0xFF == ord('o'):
+            if(not opts):
+                cv2.namedWindow('Config')
+                cv2.createTrackbar('Param1', 'Config', param1, 500, actualizar_valor1)
+                cv2.createTrackbar('Param2', 'Config', param2, 50, actualizar_valor2)
+                cv2.createTrackbar('Mín Radio', 'Config', minRadius, 50, actualizar_valor3)
+                cv2.createTrackbar('Máx Radio', 'Config', maxRadius, 50, actualizar_valor4)
+                opts = True
             
 
 
