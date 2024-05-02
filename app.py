@@ -33,7 +33,57 @@ notas = {
     "11" : "Do Agudo"}
 
 
+def drawPentagram(frame):
+    cv2.line(frame, (0, 20), (640, 20), (0, 0, 0), 1, cv2.LINE_AA)
+    cv2.line(frame, (0, 40), (640, 40), (0, 0, 0), 1, cv2.LINE_AA)
+    cv2.line(frame, (0, 60), (640, 60), (0, 0, 0), 1, cv2.LINE_AA)
+    cv2.line(frame, (0, 80), (640, 80), (0, 0, 0), 1, cv2.LINE_AA)
+    cv2.line(frame, (0, 100), (640, 100), (0, 0, 0), 1, cv2.LINE_AA)
 
+def drawNota(frame, y, x, color):
+    cv2.circle(frame, (x, y), 10, color, -1, cv2.LINE_AA)
+
+def drawMarcaSost(frame, y, x, color):
+    cv2.line(frame, (x - 32, y + 10), (x - 12, y + 8), color, 2, cv2.LINE_AA)
+    cv2.line(frame, (x - 32, y - 8), (x - 12, y - 10), color, 2, cv2.LINE_AA)
+    cv2.line(frame, (x - 30, y + 12), (x - 30, y - 12), color, 2, cv2.LINE_AA)
+    cv2.line(frame, (x - 14, y + 12), (x - 14, y - 12), color, 2, cv2.LINE_AA)
+
+def drawNotaDo(frame, x, color):
+    drawNota(frame, 120, x, color)
+
+def drawNotaRe(frame, x, color):
+    drawNota(frame, 110, x, color)
+
+def drawNotaMi(frame, x, color):
+    drawNota(frame, 100, x, color)
+
+def drawNotaFa(frame, x, color):
+    drawNota(frame, 90, x, color)
+
+def drawNotaFaSost(frame, x, color):
+    drawMarcaSost(frame, 90, x, color)
+    drawNota(frame, 90, x, color)
+
+def drawNotaSol(frame, x, color):
+    drawNota(frame, 80, x, color)
+
+def drawNotaSolSost(frame, x, color):
+    drawMarcaSost(frame, 80, x, color)
+    drawNota(frame, 80, x, color)
+
+def drawNotaLa(frame, x, color):
+    drawNota(frame, 70, x, color)
+
+def drawNotaLaSost(frame, x, color):
+    drawMarcaSost(frame, 70, x, color)
+    drawNota(frame, 70, x, color)
+
+def drawNotaSi(frame, x, color):
+    drawNota(frame, 60, x, color)
+
+def drawNotaDoAgudo(frame, x, color):
+    drawNota(frame, 50, x, color)
 
 
 def tapados(landmarks):
@@ -213,6 +263,18 @@ def main():
         if not ret:
             break
         
+        drawPentagram(frame)
+        drawNotaDo(frame, 20, (0, 255, 0))
+        drawNotaRe(frame, 60, (0, 255, 0))
+        drawNotaMi(frame, 100, (0, 255, 0))
+        drawNotaFa(frame, 140, (0, 255, 0))
+        drawNotaFaSost(frame, 200, (0, 255, 0))
+        drawNotaSol(frame, 250, (0, 255, 0))
+        drawNotaSolSost(frame, 300, (0, 255, 0))
+        drawNotaLa(frame, 350, (0, 255, 0))
+        drawNotaLaSost(frame, 400, (0, 255, 0))
+        drawNotaSi(frame, 450, (0, 255, 0))
+        drawNotaDoAgudo(frame, 490, (0, 255, 0))
         # Dibujar el rectángulo en el frame
         if(showRectangulo):
             cv2.rectangle(frame, (rect_x, rect_y), (rect_x + rect_width, rect_y + rect_height), (255, 0, 255), 3)
