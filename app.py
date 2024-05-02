@@ -5,6 +5,10 @@ import time
 
 
 ref = False
+showRectangulo = False
+showCirculos = False
+showLandmarks = False
+
 
 param1 = 90
 param2 = 13
@@ -51,18 +55,19 @@ def circlesSinTapar(tapados):
 
     sinTapar = set(flautaReferencia) - tapados
     return sinTapar
+    
 
 def tocarNota(tapados):
-    global instanteFinal, instanteInicial, elapsedTime, flautaReferencia, notas 
+    global instanteFinal, instanteInicial, elapsedTime, flautaReferencia, notas
     if(ref):
 
         nota = -1
         instanteFinal = time.monotonic()
         elapsedTime = instanteFinal - instanteInicial
-
         sinTapar = circlesSinTapar(tapados)
+        
 
-        if(elapsedTime >= 1):
+        if(elapsedTime >= 2):
 
             if(len(flautaReferencia) == len(tapados)):
                 nota = notas["1"]
@@ -70,14 +75,18 @@ def tocarNota(tapados):
             
 
             elif(len(tapados) == 6 and tapados.issubset(flautaReferencia)):
+                hueco4 = {flautaReferencia[3]}
+                hueco1 = {flautaReferencia[0]}
 
-                if(set(flautaReferencia[3]) in sinTapar):
+                if(hueco4 == sinTapar):
                     nota = notas["5"]
                     print("La nota tocada es: " + nota)
 
-                elif(set(flautaReferencia[0]) in sinTapar):
+                elif(hueco1 == sinTapar):
                     nota = notas["2"]
-                    print("La nota tocada es: " + nota)        
+                    print("La nota tocada es: " + nota)
+                else:
+                    print("no nota")        
 
 
             elif(len(tapados) == 5 and tapados.issubset(flautaReferencia)):
@@ -87,17 +96,20 @@ def tocarNota(tapados):
 
 
             elif(len(tapados) == 4 and tapados.issubset(flautaReferencia)):
+                hueco5 = {flautaReferencia[4]}
 
-                if(set(flautaReferencia[0:1]) in sinTapar and  set(flautaReferencia[4]) in sinTapar):
+                if(set(flautaReferencia[0:2]).issubset(sinTapar) and  hueco5.issubset(sinTapar)):
                     nota = notas["7"]
                     print("La nota tocada es: " + nota)
 
 
-                elif(set(flautaReferencia[0:2]) in sinTapar):
+                elif(set(flautaReferencia[0:3]) == sinTapar):
 
                     nota = notas["4"]
                     print("La nota tocada es: " + nota)
 
+                else:
+                    print("no nota")
 
             elif(len(tapados) == 3 and tapados.issubset(flautaReferencia)):
 
@@ -106,26 +118,35 @@ def tocarNota(tapados):
 
 
             elif(len(tapados) == 2 and tapados.issubset(flautaReferencia)):
-
-                if(set(flautaReferencia[0:4]) in sinTapar):
+                hueco6 = {flautaReferencia[5]}
+                if(set(flautaReferencia[0:5]).issubset(sinTapar)):
                     nota = notas["8"]
                     print("La nota tocada es: " + nota)
 
-                elif(set(flautaReferencia[0:2]) in sinTapar and set(flautaReferencia[3]) in sinTapar and set(flautaReferencia[5]) in sinTapar):
+                elif(set(flautaReferencia[0:4]).issubset(sinTapar) and hueco6.issubset(sinTapar)):
                     nota = notas["9"]
                     print("La nota tocada es: " + nota)
+
+                else:
+                    print("no nota")
             
 
             elif(len(tapados) == 1 and tapados.issubset(flautaReferencia)):
+                hueco7 = {flautaReferencia[6]}
 
-                if(set(flautaReferencia[0:5]) in sinTapar):
+                if(set(flautaReferencia[0:6]).issubset(sinTapar)):
                     nota = notas["10"]
                     print("La nota tocada es: " + nota)
 
-                elif(set(flautaReferencia[0:4]) in sinTapar and set(flautaReferencia[6]) in sinTapar):
+                elif(set(flautaReferencia[0:5]).issubset(sinTapar) and hueco7.issubset(sinTapar)):
                     nota = notas["11"]
                     print("La nota tocada es: " + nota)
 
+                else:
+                    print("no nota")
+
+            else:
+                print("no nota")
             instanteInicial = time.monotonic()
 
 
@@ -157,7 +178,7 @@ def nuevaReferencia(flautaTiempoReal):
 
 def main():
 
-    global ref, instanteInicial, param1, param2, minRadius, maxRadius
+    global ref, instanteInicial, param1, param2, minRadius, maxRadius, showRectangulo, showCirculos, showLandmarks
 
     mp_manos = mp.solutions.hands
     manos = mp_manos.Hands()
@@ -191,9 +212,10 @@ def main():
 
         if not ret:
             break
-
+        
         # Dibujar el rectángulo en el frame
-        cv2.rectangle(frame, (rect_x, rect_y), (rect_x + rect_width, rect_y + rect_height), (255, 0, 255), 3)
+        if(showRectangulo):
+            cv2.rectangle(frame, (rect_x, rect_y), (rect_x + rect_width, rect_y + rect_height), (255, 0, 255), 3)
 
         # Obtener la región de interés (ROI) dentro del rectángulo
         roi = frame[rect_y:rect_y+rect_height, rect_x:rect_x+rect_width]
@@ -213,9 +235,10 @@ def main():
             for (x, y, r) in circle:
                 if x <= center + 15 and x >= center - 15 and y > rect_y - 30 and y < rect_y + 250:
                     circlesBuenos.append((x, y, r))
-                    cv2.circle(frame, (rect_x + x, rect_y + y), r, (0, 255, 0), 2)
+                    if(showCirculos):
+                        cv2.circle(frame, (rect_x + x, rect_y + y), r, (0, 255, 0), 2)
 
-        circlesBuenos.sort(key = lambda x: x[1], reverse = True)
+        circlesBuenos.sort(key = lambda x: x[1])
         #print(str(circlesBuenos))
 
         if(len(circlesBuenos) == 7 and not ref):
@@ -223,9 +246,6 @@ def main():
             ref = True
             nuevaReferencia(circlesBuenos)
             instanteInicial = time.monotonic()
-
-        '''if(numCirculos == len(circlesBuenos)):
-            nuevaReferencia(circlesBuenos)'''
 
 
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) #_deteccion_manos
@@ -245,12 +265,10 @@ def main():
                         x = int(landmark.x * frame.shape[1])
                         y = int(landmark.y * frame.shape[0])
 
-                        if idx == 8 :#or idx == 12 or idx == 16 or idx == 20 :  # Índice, corazón, anular, meñique
+                        if idx == 8 or idx == 12 or idx == 16 or idx == 20 :  # Índice, corazón, anular, meñique
+                            if(showLandmarks):
+                                cv2.circle(frame, (x, y), 5, (255, 0, 0), -1) 
 
-                            cv2.circle(frame, (x, y), 5, (255, 0, 0), -1)
-                            '''print("----------------------")
-                            print(str((x - rect_x, 480 - y)))
-                            print("----------------------") '''     
                             landmarks.add((x - rect_x, 480 - y))
         
         
@@ -261,24 +279,38 @@ def main():
 
         cv2.imshow("MediaFlute", frame)
 
-        if cv2.waitKey(5) & 0xFF == ord('q'):
-            break
-        
-        if cv2.waitKey(5) & 0xFF == ord('r'):
-            print(str(flautaReferencia))
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-        if cv2.waitKey(5) & 0xFF == ord(' '):
+        if cv2.waitKey(1) & 0xFF == ord(' '):
             print("Obteniendo nueva referencia")
-            if len(circlesBuenos) == 7:
-                nuevaReferencia(circlesBuenos)
-                instanteInicial = time.monotonic()
-                ref = True
-                print("Nueva referencia encontrada")
+            ref = False
+        
+        if cv2.waitKey(1) & 0xFF == ord('c'):
+
+            if(showCirculos):
+                showCirculos = False
 
             else:
-                print("No se corresponde con los agujeros de una flauta")
+                showCirculos = True
+        
+        if cv2.waitKey(1) & 0xFF == ord('l'):
+
+            if(showLandmarks):
+                showLandmarks = False
             
+            else:
+                showLandmarks = True
+
+        if cv2.waitKey(1) & 0xFF == ord('r'):
+
+            if(showRectangulo):
+                showRectangulo = False
+            
+            else:
+                showRectangulo = True           
+
+
             
 
 
