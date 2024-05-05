@@ -6,9 +6,10 @@ import time
 
 ref = False
 showRectangulo = True
-showCirculos = True
-showLandmarks = True
+showCirculos = False
+showLandmarks = False
 opts = False
+mostrarPartitura = False
 
 posNotaActual = 0
 notaTocada = -1
@@ -145,37 +146,37 @@ def printNota(partitura, frame):
         nota = partitura[posNotaActual - 1]
 
         if(nota == notas["1"]):
-            cv2.putText(frame, "Do", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "Do", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["2"]):
-            cv2.putText(frame, "Re", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "Re", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["3"]):
-            cv2.putText(frame, "Mi", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "Mi", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["4"]):
-            cv2.putText(frame, "Fa", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "Fa", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["5"]):
-            cv2.putText(frame, "Fa#", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "Fa#", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["6"]):
-            cv2.putText(frame, "Sol", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "Sol", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["7"]):
-            cv2.putText(frame, "Sol#", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "Sol#", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["8"]):
-            cv2.putText(frame, "La", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "La", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["9"]):
-            cv2.putText(frame, "La#", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "La#", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["10"]):
-            cv2.putText(frame, "Si", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "Si", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
         elif(nota == notas["11"]):
-            cv2.putText(frame, "Do'", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA, False)
+            cv2.putText(frame, "Do'", (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2, cv2.LINE_AA, False)
 
 def printNotaTocada(nota, frame):
     global notas
@@ -217,7 +218,7 @@ def printNotaTocada(nota, frame):
     else:
         mensaje = mensaje + "Desconocida"
     
-    cv2.putText(frame, mensaje, (400,300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2, cv2.LINE_AA, False)
+    cv2.putText(frame, mensaje, (400,300), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2, cv2.LINE_AA, False)
 
 
 def tapados(landmarks):
@@ -256,7 +257,7 @@ def tocarNota(tapados, partitura):
 
             if(len(flautaReferencia) == len(tapados)):
                 nota = notas["1"]
-                print("La nota tocada es: " + nota)
+                #print("La nota tocada es: " + nota)
             
 
             elif(len(tapados) == 6 and tapados.issubset(flautaReferencia)):
@@ -265,17 +266,17 @@ def tocarNota(tapados, partitura):
 
                 if(hueco4 == sinTapar):
                     nota = notas["5"]
-                    print("La nota tocada es: " + nota)
+                    #print("La nota tocada es: " + nota)
 
                 elif(hueco1 == sinTapar):
                     nota = notas["2"]
-                    print("La nota tocada es: " + nota)       
+                    #print("La nota tocada es: " + nota)       
 
 
             elif(len(tapados) == 5 and tapados.issubset(flautaReferencia)):
 
                 nota = notas["3"]
-                print("La nota tocada es: " + nota) 
+                #print("La nota tocada es: " + nota) 
 
 
             elif(len(tapados) == 4 and tapados.issubset(flautaReferencia)):
@@ -283,19 +284,19 @@ def tocarNota(tapados, partitura):
 
                 if(set(flautaReferencia[0:2]).issubset(sinTapar) and  hueco5.issubset(sinTapar)):
                     nota = notas["7"]
-                    print("La nota tocada es: " + nota)
+                    #print("La nota tocada es: " + nota)
 
 
                 elif(set(flautaReferencia[0:3]) == sinTapar):
 
                     nota = notas["4"]
-                    print("La nota tocada es: " + nota)
+                    #print("La nota tocada es: " + nota)
 
 
             elif(len(tapados) == 3 and tapados.issubset(flautaReferencia)):
 
                 nota = notas["6"]
-                print("La nota tocada es: " + nota)
+                #print("La nota tocada es: " + nota)
 
 
             elif(len(tapados) == 2 and tapados.issubset(flautaReferencia)):
@@ -303,11 +304,11 @@ def tocarNota(tapados, partitura):
 
                 if(set(flautaReferencia[0:5]).issubset(sinTapar)):
                     nota = notas["8"]
-                    print("La nota tocada es: " + nota)
+                    #print("La nota tocada es: " + nota)
 
                 elif(set(flautaReferencia[0:4]).issubset(sinTapar) and hueco6.issubset(sinTapar)):
                     nota = notas["9"]
-                    print("La nota tocada es: " + nota)
+                    #print("La nota tocada es: " + nota)
 
 
             elif(len(tapados) == 1 and tapados.issubset(flautaReferencia)):
@@ -315,13 +316,13 @@ def tocarNota(tapados, partitura):
 
                 if(set(flautaReferencia[0:6]).issubset(sinTapar)):
                     nota = notas["10"]
-                    print("La nota tocada es: " + nota)
+                    #print("La nota tocada es: " + nota)
 
                 elif(set(flautaReferencia[0:5]).issubset(sinTapar) and hueco7.issubset(sinTapar)):
                     nota = notas["11"]
-                    print("La nota tocada es: " + nota)
+                    #print("La nota tocada es: " + nota)
 
-            if(posNotaActual < len(partitura) - 1 and partitura[posNotaActual] == nota):
+            if(posNotaActual < 11 and partitura[posNotaActual] == nota):
                 posNotaActual = posNotaActual + 1
             
             notaTocada = nota
@@ -352,11 +353,41 @@ def nuevaReferencia(flautaTiempoReal):
     for c in flautaReferencia:
         print(str(c))
 
+def mensajeAyuda():
+    print("---------------------------")
+    print("| Bienvenido a MediaFlute |")
+    print("---------------------------\n")
 
+    print("------------------------")
+    print("| Instrucciones de uso |")
+    print("-----------------------------------------------------------------------------------------")
+    print("| - Colocaté en una posición cómoda y pon la flauta dentro del rectángulo               |")
+    print("| - Intenta colocar la flauta centrada, alejada de los bordes del rectángulo            |")
+    print("| - Una vez que en la consola aparezca el mensaje de que se han capturado               |")
+    print("|       las referencias, puedes comenzar a tocar                                        |")
+    print("| - Intenta no mover la flauta de lugar, ya que podría dificultar la correcta detección |")
+    print("| - Si las notas mostradas no son las que se detectan pulsa reinicia las referencias    |")
+    print("|       pulsando la tecla r y repitiendo el proceso                                     |")
+    print("-----------------------------------------------------------------------------------------\n")
+
+    print("-----------------------")
+    print("| Opciones de teclado |")
+    print("---------------------------------------------------------------------------------")
+    print("| q -> Cerrar aplicación                                                        |")
+    print("| c -> Alternar mostrar circulos detectados (por defecto están desactivados)    |")
+    print("| l -> Alternar mostrar landmarks de MediaPipe (por defecto están desactivados) |")
+    print("| r -> Alternar mostrar rectángulo de detección (por defecto está activado)     |")
+    print("| p -> Alternar mostrar partitura (por defecto está desactivado)                |")
+    print("| o -> Mostrar panel de configuración de parámetros de detección de círculos    |")
+    print("| i -> Reiciciar progreso en partitura                                          |")
+    print("| Espacio -> Recapturar referencias de posiciones de los agujeros de la flauta  |")
+    print("---------------------------------------------------------------------------------\n\n")
+
+    
 
 def main():
 
-    global ref, instanteInicial, param1, param2, minRadius, maxRadius, showRectangulo, showCirculos, showLandmarks, opts, posNotaActual
+    global ref, instanteInicial, param1, param2, minRadius, maxRadius, showRectangulo, showCirculos, showLandmarks, opts, posNotaActual, mostrarPartitura, notaTocada
 
     mp_manos = mp.solutions.hands
     manos = mp_manos.Hands()
@@ -377,6 +408,7 @@ def main():
     posNotaActual = 0
     partitura = ["Re", "Re", "La", "La", "Si", "Si", "La#"]
     
+    mensajeAyuda()
 
     while cap.isOpened():
 
@@ -385,9 +417,10 @@ def main():
         if not ret:
             break
         
-        drawPentagram(frame)
-        drawPartitura(frame, partitura)
-        printNota(partitura, frame)
+        if(mostrarPartitura):
+            drawPentagram(frame)
+            drawPartitura(frame, partitura)
+            printNota(partitura, frame)
 
         # Dibujar el rectángulo en el frame
         if(showRectangulo):
@@ -449,19 +482,20 @@ def main():
         
 
         tocarNota(tapados(landmarks), partitura)
-        printNotaTocada(notaTocada, frame)
+        if(ref):
+            printNotaTocada(notaTocada, frame)
         
 
         cv2.imshow("MediaFlute", frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(5) & 0xFF == ord('q'):
             break
 
-        if cv2.waitKey(1) & 0xFF == ord(' '):
+        if cv2.waitKey(5) & 0xFF == ord(' '):
             print("Obteniendo nueva referencia")
             ref = False
         
-        if cv2.waitKey(1) & 0xFF == ord('c'):
+        if cv2.waitKey(5) & 0xFF == ord('c'):
 
             if(showCirculos):
                 showCirculos = False
@@ -469,7 +503,7 @@ def main():
             else:
                 showCirculos = True
         
-        if cv2.waitKey(1) & 0xFF == ord('l'):
+        if cv2.waitKey(5) & 0xFF == ord('l'):
 
             if(showLandmarks):
                 showLandmarks = False
@@ -477,7 +511,7 @@ def main():
             else:
                 showLandmarks = True
 
-        if cv2.waitKey(1) & 0xFF == ord('r'):
+        if cv2.waitKey(5) & 0xFF == ord('r'):
 
             if(showRectangulo):
                 showRectangulo = False
@@ -485,7 +519,7 @@ def main():
             else:
                 showRectangulo = True           
 
-        if cv2.waitKey(1) & 0xFF == ord('o'):
+        if cv2.waitKey(5) & 0xFF == ord('o'):
             if(not opts):
                 cv2.namedWindow('Config')
                 cv2.createTrackbar('Param1', 'Config', param1, 500, actualizar_valor1)
@@ -493,7 +527,16 @@ def main():
                 cv2.createTrackbar('Mín Radio', 'Config', minRadius, 50, actualizar_valor3)
                 cv2.createTrackbar('Máx Radio', 'Config', maxRadius, 50, actualizar_valor4)
                 opts = True
-            
+        
+        if cv2.waitKey(5) & 0xFF == ord('p'):
+            if(mostrarPartitura):
+                mostrarPartitura = False
+            else:
+                mostrarPartitura = True
+        
+        if cv2.waitKey(5) & 0xFF == ord('i'):
+            posNotaActual = 0
+            notaTocada = -1
 
 
     cap.release()
