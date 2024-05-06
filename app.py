@@ -540,12 +540,18 @@ def main():
         
         if cv2.waitKey(5) & 0xFF == ord('1'):
             partitura = partitura1
+            posNotaActual = 0
+            notaTocada = -1
 
         if cv2.waitKey(5) & 0xFF == ord('2'):
             partitura = partitura2
+            posNotaActual = 0
+            notaTocada = -1
 
         if cv2.waitKey(5) & 0xFF == ord('3'):
             partitura = partitura3
+            posNotaActual = 0
+            notaTocada = -1
 
     cap.release()
     cv2.destroyAllWindows()
