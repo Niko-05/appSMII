@@ -1,4 +1,4 @@
-Aplicación creada con la versión 3.10 de Python y Microsoft Visual Studio Code. Se utilizan librerías nativas de la versión de python aunque se usan dos que requieren de instalación.
+Aplicación creada con la versión 3.10 de Python y Microsoft Visual Studio Code en Windows 11. Se utilizan librerías nativas de la versión de python aunque se usan dos que requieren de instalación.
 
 Los requisitos adicionales para su funcionamiento son:
 	

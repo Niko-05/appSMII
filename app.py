@@ -366,8 +366,8 @@ def mensajeAyuda():
     print("| - Una vez que en la consola aparezca el mensaje de que se han capturado               |")
     print("|       las referencias, puedes comenzar a tocar                                        |")
     print("| - Intenta no mover la flauta de lugar, ya que podría dificultar la correcta detección |")
-    print("| - Si las notas mostradas no son las que se detectan pulsa reinicia las referencias    |")
-    print("|       pulsando la tecla r y repitiendo el proceso                                     |")
+    print("| - Si las notas mostradas no son las que se detectan reinicia las referencias          |")
+    print("|       pulsando Espacio y repitiendo el proceso inicial                                |")
     print("-----------------------------------------------------------------------------------------\n")
 
     print("-----------------------")
