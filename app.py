@@ -9,7 +9,7 @@ showRectangulo = True
 showCirculos = False
 showLandmarks = False
 opts = False
-mostrarPartitura = False
+mostrarPartitura = True
 
 posNotaActual = 0
 notaTocada = -1
