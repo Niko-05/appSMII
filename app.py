@@ -322,7 +322,7 @@ def tocarNota(tapados, partitura):
                     nota = notas["11"]
                     #print("La nota tocada es: " + nota)
 
-            if(posNotaActual < 11 and partitura[posNotaActual] == nota):
+            if(posNotaActual < 11 and partitura[posNotaActual] == nota and posNotaActual < len(partitura)):
                 posNotaActual = posNotaActual + 1
             
             notaTocada = nota
